@@ -60,7 +60,7 @@ def homepage():
 
 
 # Api route to get a new token for a valid user
-@app.route('/token')
+@app.route('/token', methods = ['POST'])
 def token():
     email = request.form.get('email')
     password = request.form.get('password')
