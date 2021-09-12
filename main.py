@@ -70,13 +70,18 @@ def token():
     except:
         return {'message': 'There was an error logging in'}, 400
 
-# test route ok if loged in
-@app.route('/am_i_loged_in')
-@check_token
-def am_i_loged_in():
-    return {'loged_in': True}, 200
 
 
+# Api route to get a new token for a valid user
+@app.route('/signup', methods = ['POST'])
+def signup():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    try:
+        user = auth.create_user_with_email_and_password(email, password)
+        return {'token': user['idToken'], 'refreshToken':user['refreshToken']}, 200
+    except:
+        return {'message': 'There was an error signing up'}, 400
 
 
   
