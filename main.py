@@ -121,7 +121,9 @@ def get_evaluation():
             score = iss*0.8 + ((10/dist)**1)*0.2
 
         return {'distance': dist, 
-                'score':score}, 200
+                'score':score,
+                'lat':line.LAT,
+                'lon':line.LON}, 200
     except:
         return {'message': 'Invalid ID, lat, or lon provided'}, 400
 
