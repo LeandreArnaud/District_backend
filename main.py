@@ -59,20 +59,26 @@ def homepage():
 
 
 
-# Api route to get a new token for a valid user
+# Api route to get a new token from a valid user email and password or from refresh token
 @app.route('/token', methods = ['POST'])
 def token():
     email = request.form.get('email')
     password = request.form.get('password')
+    refreshToken = request.form.get('refreshToken')
     try:
-        user = auth.sign_in_with_email_and_password(email, password) 
+        if refreshToken:
+            user = auth.refresh(refreshToken)
+        else:
+            user = auth.sign_in_with_email_and_password(email, password)
         return {'token': user['idToken'], 'refreshToken':user['refreshToken']}, 200
     except:
         return {'message': 'There was an error logging in'}, 400
 
 
 
-# Api route to get a new token for a valid user
+
+
+# Api route to sign up
 @app.route('/signup', methods = ['POST'])
 def signup():
     email = request.form.get('email')
