@@ -90,6 +90,14 @@ def signup():
         return {'message': 'There was an error signing up'}, 400
 
 
+# TODO: add database request
+@app.route("/account_info")
+@check_token
+def get_account_info():
+    return {'firstName': 'John',
+            'lastName': 'Doe'}, 200
+
+
   
 # TODO: treat accents
 @app.route("/get_random_adress")
