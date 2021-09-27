@@ -64,7 +64,7 @@ def homepage():
 def token():
     email = request.form.get('email')
     password = request.form.get('password')
-    refreshToken = request.form.get('refreshToken')
+    refreshToken = request.form.get('refreshtoken')
     try:
         if refreshToken:
             user = auth.refresh(refreshToken)
