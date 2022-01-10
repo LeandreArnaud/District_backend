@@ -7,11 +7,7 @@ from geopy.geocoders import Nominatim
 from geopy import distance
 from functools import wraps
 
-
-
-
 config = json.load(open('config.json'))
-
 
 # df containing restricted db
 df = pd.read_csv(config['FILENAME'], index_col=0, dtype=str)
@@ -19,9 +15,6 @@ df = pd.read_csv(config['FILENAME'], index_col=0, dtype=str)
 app = Flask(__name__)
 # geopy geocoder
 geolocator = Nominatim(user_agent=config['GEOPY_APP_NAME'])
-# Connect to firebase
-firebase = pyrebase.initialize_app(config['firebase'])
-auth = firebase.auth()
 
 
 # util functions
@@ -32,76 +25,14 @@ def is_same_street(street, lat, lon):
   location = geolocator.reverse(f"{lat}, {lon}")
   return streetName in location.address.lower().strip()
 
-
-# decorator to check token
-def check_token(f):
-    @wraps(f)
-    def wrap(*args,**kwargs):
-        if not request.headers.get('authorization'):
-            return {'message': 'No token provided'},400
-        try:
-            user = auth.get_account_info(request.headers['authorization'])
-            # for later use
-            #request.user = user
-        except Exception as e: 
-            #print(e)
-            return {'message':'Invalid token provided.'},400
-        return f(*args, **kwargs)
-    return wrap
-
-
 # routes
 @app.route("/")
 def homepage():
     return "Welcome to MPV Disctrict app API !", 200
-
-
-
-
-
-# Api route to get a new token from a valid user email and password or from refresh token
-@app.route('/token', methods = ['POST'])
-def token():
-    email = request.form.get('email')
-    password = request.form.get('password')
-    refreshToken = request.form.get('refreshtoken')
-    try:
-        if refreshToken:
-            user = auth.refresh(refreshToken)
-        else:
-            user = auth.sign_in_with_email_and_password(email, password)
-        return {'token': user['idToken'], 'refreshToken':user['refreshToken']}, 200
-    except:
-        return {'message': 'There was an error logging in'}, 400
-
-
-
-
-
-# Api route to sign up
-@app.route('/signup', methods = ['POST'])
-def signup():
-    email = request.form.get('email')
-    password = request.form.get('password')
-    try:
-        user = auth.create_user_with_email_and_password(email, password)
-        return {'token': user['idToken'], 'refreshToken':user['refreshToken']}, 200
-    except:
-        return {'message': 'There was an error signing up'}, 400
-
-
-# TODO: add database request
-@app.route("/account_info")
-@check_token
-def get_account_info():
-    return {'firstName': 'John',
-            'lastName': 'Doe'}, 200
-
-
   
 # TODO: treat accents
+# route to get a random adress
 @app.route("/get_random_adress")
-@check_token
 def get_random_adress():
     line = df.sample(n=1)
     return {'id': line.ID.values[0],
@@ -110,9 +41,8 @@ def get_random_adress():
             'cp': line.CP.values[0],
             'com': line.COM.values[0]}, 200
 
-
+# route to evaluate distance
 @app.route("/get_evaluation")
-@check_token
 def get_evaluation():
     try:
         ID = request.headers.get('ID')
