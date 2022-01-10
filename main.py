@@ -1,11 +1,8 @@
 import pandas as pd
 import json
-import pyrebase
 from flask import Flask, request
-from flask import jsonify
 from geopy.geocoders import Nominatim
 from geopy import distance
-from functools import wraps
 
 config = json.load(open('config.json'))
 
