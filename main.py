@@ -63,8 +63,8 @@ def get_evaluation():
 
         return {'distance': dist, 
                 'score':score,
-                'lat':line.LAT,
-                'lon':line.LON}, 200
+                'lat':float(line.LAT),
+                'lon':float(line.LON)}, 200
     except:
         return {'message': 'Invalid ID, lat, or lon provided'}, 400
 
