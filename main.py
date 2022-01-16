@@ -61,10 +61,10 @@ def get_evaluation():
             iss = is_same_street(line.RUE, lat, lon)
             score = iss*0.8 + ((10/dist)**1)*0.2
 
-        return {'distance': dist, 
-                'score':score,
-                'lat':float(line.LAT),
-                'lon':float(line.LON)}, 200
+        return {'distance': round(dist, 0), 
+                'score': round(score, 3),
+                'lat': float(line.LAT),
+                'lon': float(line.LON)}, 200
     except:
         return {'message': 'Invalid ID, lat, or lon provided'}, 400
 
