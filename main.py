@@ -1,8 +1,8 @@
 import pandas as pd
 import json
 from flask import Flask, request
-from geopy.geocoders import Nominatim
 from geopy import distance
+import requests
 
 config = json.load(open('config.json'))
 
@@ -10,17 +10,24 @@ config = json.load(open('config.json'))
 df = pd.read_csv(config['FILENAME'], index_col=0, dtype=str)
 # flask app
 app = Flask(__name__)
-# geopy geocoder
-geolocator = Nominatim(user_agent=config['GEOPY_APP_NAME'])
 
 
 # util functions
+def normalize_streetname(streetName):
+    return streetName.lower().strip().replace('-', '').replace(' ', '').replace(',', '')
+
 def is_same_street(street, lat, lon):
   # TODO: format: rm accents, spaces, maybe evaluate the % of common char
-  # this will work for most french adresses thanks to OSM
-  streetName = street.lower().strip()
-  location = geolocator.reverse(f"{lat}, {lon}")
-  return streetName in location.address.lower().strip()
+  PARAMS = {
+    'at': '{},{}'.format(lat, lon),
+    'apikey': config['HERE_API_GEOCODE_SECRET']
+    }
+  rep = requests.get(url = config['HERE_API_GEOCODE_URL'], params = PARAMS).json()
+
+  try:
+    return normalize_streetname(street) in normalize_streetname(rep['items'][0]['title'])
+  except:
+    return False
 
 # routes
 @app.route("/")
@@ -63,9 +70,9 @@ def get_evaluation():
 
         return {'distance': round(dist, 0), 
                 'score': round(score, 3),
-                'lat': float(line.LAT),
-                'lon': float(line.LON)}, 200
-    except:
+                'lat': round(float(line.LAT), 9),
+                'lon': round(float(line.LON), 9)}, 200
+    except Exception as e:
         return {'message': 'Invalid ID, lat, or lon provided'}, 400
 
 
