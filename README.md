@@ -1,4 +1,4 @@
-# DISTRICT MVP Backend API
+# DISTRICT Backend API
 
 Backend Flask API for District, a mobile app made to train firefighters to learn their district (streetnames, apartments, hydrants.. etc).
 <br/><br/>
@@ -8,7 +8,10 @@ Backend Flask API for District, a mobile app made to train firefighters to learn
 ## Built With
 - [Python](https://www.python.org)
 - [Flask](https://flask.palletsprojects.com/en/2.0.x/)
-- [GeoPy](https://geopy.readthedocs.io/en/stable/#)
+- [Here API](https://www.here.com)
+- [Geopy](https://geopy.readthedocs.io/en/stable/#)
+- [MySQL](https://www.mysql.com)
+- [AWS RDS](https://aws.amazon.com/rds/)
 
 ## Installation
 1. Clone the repo
@@ -35,17 +38,16 @@ Backend Flask API for District, a mobile app made to train firefighters to learn
 ## Limits
 For now, the 
 <span style="color:red">**backend API is private**</span>
-and is restricted to a single city. Also it doesn't use a database at this point.<br/>
-I need to improve secutity on it (I don't want you to ruin all my GCP credits). <br/>
+and is restricted to the Yvelines Area in 🇫🇷 France.
+<br/><br/>
 
 ## FrontEnd
-Please find the 
-[React-Native](https://reactnative.dev)
-frontend of the application on 
+Please find the frontend mobile application on 
 [this repo](https://github.com/LeandreArnaud/District)
 <br/><br/>
 
 ## Contact
 🇫🇷 Léandre ARNAUD: 
+- [Website](https://leandrearnaud.github.io/)
 - [GitHub](https://github.com/LeandreArnaud)
 - [LinkedIn](https://www.linkedin.com/in/leandre-arnaud/)
