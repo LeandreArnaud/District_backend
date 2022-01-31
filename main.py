@@ -1,15 +1,23 @@
-import pandas as pd
 import json
 from flask import Flask, request
 from geopy import distance
 import requests
+import mysql.connector
 
 config = json.load(open('config.json'))
 
-# df containing restricted db
-df = pd.read_csv(config['FILENAME'], index_col=0, dtype=str)
+
 # flask app
 app = Flask(__name__)
+# MySQL connection
+cnx = mysql.connector.connect(
+    user=config['SQL_USER'],
+    password=config['SQL_PASSWORD'], 
+    host=config['SQL_SERVER'], 
+    port=config['SQL_PORT']
+)
+# Get a cursor
+cur = cnx.cursor()
 
 
 # util functions
@@ -29,21 +37,36 @@ def is_same_street(street, lat, lon):
   except:
     return False
 
+
 # routes
 @app.route("/")
 def homepage():
     return "Welcome to MPV Disctrict app API !", 200
   
+
 # TODO: treat accents
 # route to get a random adress
 @app.route("/get_random_adress")
 def get_random_adress():
-    line = df.sample(n=1)
-    return {'id': line.ID.values[0],
-            'num': line.NUM.values[0],
-            'rue': line.RUE.values[0],
-            'cp': line.CP.values[0],
-            'com': line.COM.values[0]}, 200
+    try:
+        coms = request.headers.get('coms')
+        cols = ["ID", "NUM", "RUE", "CP", "COM", "RUE_NORM", "COM_NORM"]
+        cols_str = str(cols).replace('[', '').replace(']', '').replace("'", '')
+        coms_str = str(coms).replace('[', '').replace(']', '')
+
+        cur.execute(f"SELECT {cols_str} FROM District.bano WHERE COM_NORM IN ({coms_str}) ORDER BY RAND() LIMIT 1")
+        row = cur.fetchone()
+        rep = dict(zip(cols, row))
+        return {'id': rep['ID'],
+                'num': rep['NUM'],
+                'rue': rep['RUE'],
+                'cp': rep['CP'],
+                'com': rep['COM'],
+                'com': rep['RUE_NORM'],
+                'com': rep['COM_NORM'],}, 200
+    except Exception as e:
+        return {'message': 'Invalid communes provided'}, 400
+
 
 # route to evaluate distance
 @app.route("/get_evaluation")
@@ -53,8 +76,13 @@ def get_evaluation():
         lat = request.headers.get('lat')
         lon = request.headers.get('lon')
 
-        line = df[df.ID == ID].iloc[0]
-        dist = distance.distance([line.LAT, line.LON], [lat, lon]).meters
+        cols = ["LAT", "LON", "RUE"]
+        cols_str = str(cols).replace('[', '').replace(']', '').replace("'", '')
+        cur.execute(f'SELECT {cols_str} FROM District.bano WHERE ID="{ID}" LIMIT 1')
+        row = cur.fetchone()
+        rep = dict(zip(cols, row))
+        
+        dist = distance.distance([rep['LAT'], rep['LON']], [lat, lon]).meters
         score = 0
 
         # TODO: increase 10m
@@ -65,15 +93,16 @@ def get_evaluation():
             pass
         else:
             # TODO: add try except
-            iss = is_same_street(line.RUE, lat, lon)
+            iss = is_same_street(rep['RUE'], lat, lon)
             score = iss*0.8 + ((10/dist)**1)*0.2
 
         return {'distance': round(dist, 0), 
-                'score': round(score, 3),
-                'lat': round(float(line.LAT), 9),
-                'lon': round(float(line.LON), 9)}, 200
+                'score': round(score, 2),
+                'lat': round(rep['LAT'], 9),
+                'lon': round(rep['LON'], 9)}, 200
     except Exception as e:
         return {'message': 'Invalid ID, lat, or lon provided'}, 400
+
 
 
 
