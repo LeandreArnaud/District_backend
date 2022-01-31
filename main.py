@@ -104,6 +104,19 @@ def get_evaluation():
         return {'message': 'Invalid ID, lat, or lon provided'}, 400
 
 
+# TODO: add departments
+# route to get all communes
+@app.route("/get_coms")
+def get_coms():
+    try:
+        cur.execute(f'SELECT DISTINCT COM, COM_NORM, CP FROM District.bano')
+        coms = cur.fetchall()
+
+        return json.dumps(coms), 200
+    except Exception as e:
+        return {'message': 'Impossible to get communes'}, 400
+
+
 
 
 if __name__ == "__main__":
