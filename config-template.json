@@ -1,0 +1,8 @@
+{   
+    "HERE_API_GEOCODE_URL": "",
+    "HERE_API_GEOCODE_SECRET": "",
+    "SQL_USER": "",
+    "SQL_PASSWORD": "",
+    "SQL_SERVER": "",
+    "SQL_PORT": 0
+}
