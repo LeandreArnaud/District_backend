@@ -109,10 +109,14 @@ def get_evaluation():
 @app.route("/get_coms")
 def get_coms():
     try:
-        cur.execute(f'SELECT DISTINCT COM, COM_NORM, CP FROM District.bano')
-        coms = cur.fetchall()
+        cols = ["COM", "COM_NORM", "CP"]
+        cols_str = str(cols).replace('[', '').replace(']', '').replace("'", '')
 
-        return json.dumps(coms), 200
+        cur.execute(f'SELECT DISTINCT {cols_str} FROM District.bano')
+        coms = cur.fetchall()
+        coms = [dict(zip(cols, com)) for com in coms]
+
+        return {'communes': coms}, 200
     except Exception as e:
         return {'message': 'Impossible to get communes'}, 400
 
