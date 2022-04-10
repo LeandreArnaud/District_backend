@@ -109,10 +109,9 @@ def get_evaluation():
 @app.route("/get_coms")
 def get_coms():
     try:
-        cols = ["COM", "COM_NORM", "CP"]
-        cols_str = str(cols).replace('[', '').replace(']', '').replace("'", '')
+        cols = ["COM", "COM_NORM", "CP", "LAT", "LON"]
 
-        cur.execute(f'SELECT DISTINCT {cols_str} FROM District.bano')
+        cur.execute(f'SELECT COM, COM_NORM, CP, AVG(LAT) AS LAT, AVG(LON) AS LON FROM District.bano GROUP BY COM, CP')
         coms = cur.fetchall()
         coms = [dict(zip(cols, com)) for com in coms]
 
